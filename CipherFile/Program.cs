@@ -5,8 +5,10 @@ class Program
 {
     static void Main()
     {
-        Console.WriteLine("=== KESİN ÇÖZÜM ŞİFRELEME ===");
-        Console.WriteLine("1 - Şifrele\n2 - Çöz");
+        Console.WriteLine("=== AES DOSYA ŞİFRELEME ===");
+        Console.WriteLine("1 - Şifrele");
+        Console.WriteLine("2 - Çöz");
+        Console.Write("Seçim: ");
         string secim = Console.ReadLine();
 
         Console.Write("Dosyayı buraya sürükle ve Enter'a bas: ");
@@ -18,18 +20,38 @@ class Program
             return;
         }
 
-        Console.Write("Şifre belirle: ");
+        Console.Write("Şifre gir: ");
         string pass = Console.ReadLine();
 
-        // Çıktı dosyasını otomatik belirleyelim (Karışıklığı önlemek için)
-        string outPath = secim == "1" ? path + ".enc" : path.Replace(".enc", "") + "_cozulden.txt";
+        string outPath;
 
         try
         {
-            if (secim == "1") CryptoHelper.Encrypt(path, outPath, pass);
-            else CryptoHelper.Decrypt(path, outPath, pass);
+            if (secim == "1")
+            {
+                // Şifreleme
+                outPath = path + ".enc";
+                CryptoHelper.Encrypt(path, outPath, pass);
+            }
+            else if (secim == "2")
+            {
+                // Çözme için güvenlik kontrolü
+                if (!path.EndsWith(".enc"))
+                {
+                    Console.WriteLine("HATA: Çözme için .enc uzantılı dosya seçmelisin!");
+                    return;
+                }
 
-            Console.WriteLine($"\nİŞLEM TAMAM!");
+                outPath = path.Substring(0, path.Length - 4) + "_cozuldu.txt";
+                CryptoHelper.Decrypt(path, outPath, pass);
+            }
+            else
+            {
+                Console.WriteLine("Geçersiz seçim!");
+                return;
+            }
+
+            Console.WriteLine("\nİŞLEM TAMAMLANDI!");
             Console.WriteLine($"Oluşan Dosya: {outPath}");
             Console.WriteLine($"Dosya Boyutu: {new FileInfo(outPath).Length} byte");
         }
@@ -37,6 +59,8 @@ class Program
         {
             Console.WriteLine("HATA: " + ex.Message);
         }
+
+        Console.WriteLine("\nÇıkmak için bir tuşa bas...");
         Console.ReadKey();
     }
 }
