@@ -1,45 +1,42 @@
 ﻿using System;
+using System.IO;
 
 class Program
 {
     static void Main()
     {
-        Console.WriteLine("1 - Dosya Şifrele");
-        Console.WriteLine("2 - Dosya Çöz");
-        Console.Write("Seçiminiz: ");
+        Console.WriteLine("=== KESİN ÇÖZÜM ŞİFRELEME ===");
+        Console.WriteLine("1 - Şifrele\n2 - Çöz");
         string secim = Console.ReadLine();
 
-        Console.Write("Dosya yolu: ");
-        string input = Console.ReadLine();
+        Console.Write("Dosyayı buraya sürükle ve Enter'a bas: ");
+        string path = Console.ReadLine().Trim().Replace("\"", "");
 
-        Console.Write("Çıktı dosya adı: ");
-        string output = Console.ReadLine();
+        if (!File.Exists(path))
+        {
+            Console.WriteLine("Hata: Dosya bulunamadı!");
+            return;
+        }
 
-        Console.Write("Şifre: ");
-        string password = Console.ReadLine();
+        Console.Write("Şifre belirle: ");
+        string pass = Console.ReadLine();
+
+        // Çıktı dosyasını otomatik belirleyelim (Karışıklığı önlemek için)
+        string outPath = secim == "1" ? path + ".enc" : path.Replace(".enc", "") + "_cozulden.txt";
 
         try
         {
-            if (secim == "1")
-            {
-                CryptoHelper.EncryptFile(input, output, password);
-                Console.WriteLine("Dosya başarıyla şifrelendi.");
-            }
-            else if (secim == "2")
-            {
-                CryptoHelper.DecryptFile(input, output, password);
-                Console.WriteLine("Dosya başarıyla çözüldü.");
-            }
-            else
-            {
-                Console.WriteLine("Geçersiz seçim.");
-            }
+            if (secim == "1") CryptoHelper.Encrypt(path, outPath, pass);
+            else CryptoHelper.Decrypt(path, outPath, pass);
+
+            Console.WriteLine($"\nİŞLEM TAMAM!");
+            Console.WriteLine($"Oluşan Dosya: {outPath}");
+            Console.WriteLine($"Dosya Boyutu: {new FileInfo(outPath).Length} byte");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Hata oluştu: " + ex.Message);
+            Console.WriteLine("HATA: " + ex.Message);
         }
-
-        Console.WriteLine("İşlem tamamlandı.");
+        Console.ReadKey();
     }
 }
