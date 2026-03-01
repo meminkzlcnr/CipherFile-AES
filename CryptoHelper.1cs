@@ -29,5 +29,5 @@ public static class CryptoHelper
         }
     }
     
-    // Encrypt metodu da benzer bir stream yapısıyla (aes.CreateEncryptor) kurulmalıdır.
+  
 }
