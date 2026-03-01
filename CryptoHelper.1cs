@@ -1,8 +1,33 @@
-﻿using System;
+using System.Security.Cryptography;
+using System.Text;
 
-public class Class1
+public static class CryptoHelper
 {
-	public Class1()
-	{
-	}
+   
+    private static readonly byte[] Salt = Encoding.UTF8.GetBytes("Grup11_Cipherfile_Salt");
+
+    public static void Decrypt(string inputPath, string outputPath, string password)
+    {
+        
+        using (var deriveBytes = new Rfc2898DeriveBytes(password, Salt, 10000, HashAlgorithmName.SHA256))
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = deriveBytes.GetBytes(32); // 256-bit
+                aes.IV = deriveBytes.GetBytes(16);  // 128-bit
+
+                
+                using (FileStream fsIn = new FileStream(inputPath, FileMode.Open, FileAccess.Read))
+                using (FileStream fsOut = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
+                using (ICryptoTransform decryptor = aes.CreateDecryptor())
+                using (CryptoStream cs = new CryptoStream(fsOut, decryptor, CryptoStreamMode.Write))
+                {
+                    fsIn.CopyTo(cs); 
+                    // cs.FlushFinalBlock(); // CopyTo bittiğinde otomatik çağrılır ama manuel de eklenebilir.
+                } 
+            }
+        }
+    }
+    
+    // Encrypt metodu da benzer bir stream yapısıyla (aes.CreateEncryptor) kurulmalıdır.
 }
